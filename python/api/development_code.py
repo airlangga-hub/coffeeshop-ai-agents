@@ -1,27 +1,26 @@
-from agents import GuardAgent, ClassifierAgent, AgentProtocol, DetailsAgent
+from agents import GuardAgent, ClassifierAgent, AgentProtocol, DetailsAgent, RecommendationAgent
 import os
 
 def main():
-    pass
 
-if __name__ == "__main__":
     # initialize agents
     guard_agent = GuardAgent()
     classifier_agent = ClassifierAgent()
 
     agent_dict: dict[str, AgentProtocol] = {
-        "details_agent": DetailsAgent()
+        "details_agent": DetailsAgent(),
+        "recommendation_agent": RecommendationAgent()
     }
 
     messages = []
 
     while True:
-        os.system("clear")
+        # os.system("clear")
 
-        print("\n Print Messages........\n")
+        print("\n==== CHAT HISTORY ====\n")
 
         for message in messages:
-            print(f"{message['role'].capitalize()}: {message['content']}")
+            print(f"{message['role'].capitalize()}: {message['content']}\n")
 
         # user input
         prompt = input("User: ")
@@ -46,3 +45,6 @@ if __name__ == "__main__":
         response = agent.respond(messages)
 
         messages.append(response)
+
+if __name__ == "__main__":
+    main()
