@@ -60,7 +60,7 @@ class DetailsAgent():
         - Only use information from the provided context
         - If the context doesn't contain relevant information, politely say you don't have those details
         - Stay in character as a coffee shop waiter
-        - Focus on being helpful rather than overly chatty
+        - Focus on being HELPFUL rather than overly chatty
         """
 
         prompt = f"""
