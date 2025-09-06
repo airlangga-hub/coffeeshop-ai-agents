@@ -34,7 +34,7 @@ class RecommendationAgent():
             df = df[df['product_category'].isin(product_categories)]
 
         df = df.sort_values('number_of_transactions', ascending=False)
-        
+
         return df['product'].tolist()[:top_k]
 
     def get_apriori_recommendation(self, products, top_k=5):
@@ -46,7 +46,7 @@ class RecommendationAgent():
         # sort recom list by confidence
         recom_list = sorted(recom_list, key=lambda x: x['confidence'], reverse=True)
 
-        # limit 2 recoms per category
+        # limit 3 recoms per category
         recoms = []
         category_counter = {}
         for recom in recom_list:
@@ -54,12 +54,17 @@ class RecommendationAgent():
                 break
 
             category = recom['product_category']
-            category_counter[category] = category_counter.get(category, 0) + 1
+            product = recom['product']
 
-            if category_counter[category] >= 2:
+            if product in recoms:
                 continue
 
-            recoms.append(recom['product'])
+            category_counter[category] = category_counter.get(category, 0) + 1
+
+            if category_counter[category] > 3:
+                continue
+
+            recoms.append(product)
 
         return recoms
 
@@ -128,7 +133,7 @@ class RecommendationAgent():
         prompt = f"""
         {messages[-1]['content']}
 
-        Recommended Items:
+        STRICTLY Recommend The Following Items, DO NOT recommend anything else:
         {recoms_str}
         """
 
@@ -163,7 +168,7 @@ class RecommendationAgent():
         else:
             recommendations = []
 
-        print(recommendation_classification)
+        # print(recommendation_classification)
 
         if not recommendations:
             return {"role": "assistant", "content": "I can't recommend any items, can I help you with anything else?"}
@@ -181,7 +186,7 @@ class RecommendationAgent():
         prompt = f"""
         {messages[-1]['content']}
 
-        Recommended Items:
+        STRICTLY Recommend The Following Items, DO NOT recommend anything else:
         {recommendations_str}
         """
 
