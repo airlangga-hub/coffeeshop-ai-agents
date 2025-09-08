@@ -6,4 +6,3 @@ google-cloud-storage==2.18.2
 mlxtend==0.23.1
 groq==0.31.1
 sentence-transformers==5.1.0
-huggingface-hub==0.34.4
