@@ -89,5 +89,5 @@ class DetailsAgent():
         return {
             "role": "assistant",
             "content": response,
-            "metadata": {"agent": "details agent"}
+            "metadata": {"agent": "details_agent"}
             }

@@ -150,7 +150,7 @@ class RecommendationAgent():
         return {
             "role": "assistant",
             "content": response,
-            "metadata": {"agent": "recommendation agent"}
+            "metadata": {"agent": "recommendation_agent"}
         }
 
     def respond(self,messages):

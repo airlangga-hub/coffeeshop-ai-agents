@@ -58,6 +58,6 @@ class GuardAgent():
             return {
                 "role": "assistant",
                 "content": "I didn't quite understand that, please say that again?",
-                "metadata": {"agent": "guard agent",
+                "metadata": {"agent": "guard_agent",
                             "decision": "not allowed"}
                 }

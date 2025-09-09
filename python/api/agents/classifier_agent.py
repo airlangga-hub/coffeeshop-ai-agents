@@ -60,6 +60,6 @@ class ClassifierAgent():
             return {
                 "role": "assistant",
                 "content": "I didn't quite understand that, please say that again?",
-                "metadata": {"agent": "classifier agent",
+                "metadata": {"agent": "classifier_agent",
                             "decision": "unknown"}
                 }
