@@ -107,21 +107,25 @@ class OrderAgent():
             if isinstance(response['order'], str):
                 response['order'] = literal_eval(response['order'])
 
-            content = response['response']
             if not asked_recommendation_before and len(response['order']) > 1:
                 asked_recommendation_before = True
 
                 recommendation_output = self.recommendation_agent.get_recommendation_from_order(response['order'], messages)
 
                 content = recommendation_output['content']
+            else:
+                content = response['response']
+
+                recommendation_output = None
 
             return {
                 "role": "assistant",
                 "content": content,
                 "metadata": {"agent": "order_agent",
-                            "asked_recommendation_before": asked_recommendation_before,
                             "step number": response['step number'],
-                            "order": response['order']}
+                            "order": response['order'],
+                            "asked_recommendation_before": asked_recommendation_before,
+                            "recommendation_type": recommendation_output['metadata']['recommendation_type'] if recommendation_output else ""}
             }
 
         except:
@@ -129,7 +133,8 @@ class OrderAgent():
                 "role": "assistant",
                 "content": "I didn't quite understand that, please say that again?",
                 "metadata": {"agent": "order_agent",
-                            "asked_recommendation_before": False,
                             "step number": 0,
-                            "order": []}
+                            "order": [],
+                            "asked_recommendation_before": False,
+                            "recommendation_type": ""}
             }

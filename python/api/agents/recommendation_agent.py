@@ -1,4 +1,5 @@
 from ast import literal_eval
+from math import prod
 from groq import Groq
 from dotenv import load_dotenv
 from os import getenv
@@ -25,44 +26,52 @@ class RecommendationAgent():
         self.products = self.popular_df['product'].unique().tolist()
         self.product_categories = self.popular_df['product_category'].unique().tolist()
 
-    def get_popular_recommendation(self, product_categories=None, top_k=5):
+    def get_popular_recommendation(self, product_categories=None, current_order=None, top_k=5):
         if isinstance(product_categories, str):
             product_categories = [product_categories]
+
+        order = [dic['item'] for dic in current_order] if current_order else []
 
         df = self.popular_df
 
         if product_categories:
             df = df[df['product_category'].isin(product_categories)]
 
+        df = df[~df['product'].isin(order)] if current_order else df
+
         df = df.sort_values('number_of_transactions', ascending=False)
 
         return df['product'].tolist()[:top_k]
 
-    def get_apriori_recommendation(self, products, top_k=5):
+    def get_apriori_recommendation(self, products, current_order=None, top_k=5):
+        order = []
+        if current_order:
+            order = [dic['item'] for dic in current_order]
+
         recom_list = []
         for product in products:
             if product in self.apriori_obj:
                 recom_list.extend(self.apriori_obj[product])
 
         # sort recom list by confidence
-        recom_list = sorted(recom_list, key=lambda x: x['confidence'], reverse=True)
+        recom_list = sorted(recom_list, key=lambda dic: dic['confidence'], reverse=True)
 
-        # limit 3 recoms per category
+        # limit 2 recoms per category
         recoms = []
         category_counter = {}
-        for recom in recom_list:
+        for dic in recom_list:
             if len(recoms) >= top_k:
                 break
 
-            category = recom['product_category']
-            product = recom['product']
+            category = dic['product_category']
+            product = dic['product']
 
-            if product in recoms or product in products:
+            if product in recoms or product in products or product in order:
                 continue
 
             category_counter[category] = category_counter.get(category, 0) + 1
 
-            if category_counter[category] > 3:
+            if category_counter[category] > 2:
                 continue
 
             recoms.append(product)
@@ -70,11 +79,21 @@ class RecommendationAgent():
         return recoms
 
     def recommendation_classification(self, messages):
+        current_order = None
+        for message in reversed(messages):
+            if message.get("metadata", {}).get("agent", "") == "order_agent":
+                current_order = message['metadata']['order']
+                break
+
         system_prompt = """ You are a helpful AI assistant for a coffee shop application which serves drinks and pastries. We have 3 types of recommendations:
 
         1. Apriori Recommendations: These are recommendations based on the user's order history. We recommend items that are frequently bought together with the items in the user's order.
         2. Popular Recommendations: These are recommendations based on the popularity of items in the coffee shop. We recommend items that are popular among customers.
-        3. Popular by Category Recommendations: Here the user asks to recommend them product in a category. Like what coffee do you recommend me to get?. We recommend items that are popular in the category of the user's requested category.
+        3. Popular by Category Recommendations: Here the user asks to recommend them product in a category. Like what coffee do you recommend me to get?. We recommend items that are popular in the user's requested category.
+
+        Here is the user's current order:
+        """ + (", ".join([dic['item'] for dic in current_order]) if current_order else "No current order") + """
+        If the user's order contains Dark Chocolate (Drinking Chocolate) or Dark Chocolate (Packaged Chocolate), change ONLY the items that contain Dark Chocolate (<drinking or packaged>) to Dark Chocolate. KEEP EVERYTHING ELSE THE SAME.
 
         Here is the list of items in the coffee shop:
         """ + ", ".join(self.products) + """
@@ -97,31 +116,31 @@ class RecommendationAgent():
 
         response = get_response(self.client, self.model_name, input_messages)
 
-        return self.postprocess_classification(response)
+        return self.postprocess_classification(response, current_order)
 
-    def postprocess_classification(self, response):
+    def postprocess_classification(self, response, current_order):
         try:
             response = literal_eval(response)
 
             return {
                 "recommendation_type": response["recommendation_type"],
-                "parameters": response["parameters"]
+                "parameters": response["parameters"],
+                "current_order": current_order if current_order else []
             }
 
         except:
             return {
                 "recommendation_type": "popular",
-                "parameters": ""
+                "parameters": "",
+                "current_order": current_order if current_order else []
             }
 
     def get_recommendation_from_order(self, order, messages):
         messages = deepcopy(messages)
 
-        products = []
-        for product in order:
-            products.append(product['item'])
+        products = [dic['item'] for dic in order]
 
-        recoms = self.get_apriori_recommendation(products)
+        recoms = self.get_apriori_recommendation(products, order)
         recoms_str = ", ".join(recoms)
 
         system_prompt = """
@@ -145,28 +164,33 @@ class RecommendationAgent():
 
         response = get_response(self.client, self.model_name, input_messages)
 
-        return self.postprocess(response, "apriori")
+        return self.postprocess(response, "apriori", str(products))
 
-    def postprocess(self, response, recommendation_type):
+    def postprocess(self, response, recommendation_type, parameters=None):
         return {
             "role": "assistant",
             "content": response,
             "metadata": {"agent": "recommendation_agent",
-                         "recommendation_type": recommendation_type}
+                         "recommendation_type": recommendation_type,
+                         "parameters": parameters if parameters else ""}
         }
 
-    def respond(self,messages):
+    def respond(self, messages):
         messages = deepcopy(messages)
 
         recommendation_classification = self.recommendation_classification(messages)
         recommendation_type = recommendation_classification['recommendation_type']
+        current_order = recommendation_classification['current_order']
 
         if recommendation_type == "apriori":
-            recommendations = self.get_apriori_recommendation(recommendation_classification['parameters'])
+            recommendations = self.get_apriori_recommendation(recommendation_classification['parameters'], current_order=current_order)
+
         elif recommendation_type == "popular":
-            recommendations = self.get_popular_recommendation()
+            recommendations = self.get_popular_recommendation(current_order=current_order)
+
         elif recommendation_type == "popular by category":
-            recommendations = self.get_popular_recommendation(recommendation_classification['parameters'])
+            recommendations = self.get_popular_recommendation(recommendation_classification['parameters'], current_order=current_order)
+
         else:
             recommendations = []
 
@@ -199,4 +223,4 @@ class RecommendationAgent():
 
         response = get_response(self.client,self.model_name,input_messages)
 
-        return self.postprocess(response, recommendation_type)
+        return self.postprocess(response, recommendation_type, recommendation_classification['parameters'])
