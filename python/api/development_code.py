@@ -1,4 +1,5 @@
-from agents import GuardAgent, ClassifierAgent, AgentProtocol, DetailsAgent, RecommendationAgent
+from sympy import Order
+from agents import GuardAgent, ClassifierAgent, AgentProtocol, DetailsAgent, RecommendationAgent, OrderAgent
 import os
 
 def main():
@@ -6,10 +7,12 @@ def main():
     # initialize agents
     guard_agent = GuardAgent()
     classifier_agent = ClassifierAgent()
+    recommendation_agent = RecommendationAgent()
 
     agent_dict: dict[str, AgentProtocol] = {
         "details_agent": DetailsAgent(),
-        "recommendation_agent": RecommendationAgent()
+        "recommendation_agent": recommendation_agent,
+        "order_agent": OrderAgent(recommendation_agent)
     }
 
     messages = []

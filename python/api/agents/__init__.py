@@ -3,3 +3,4 @@ from .classifier_agent import ClassifierAgent
 from .details_agent import DetailsAgent
 from .agent_protocol import AgentProtocol
 from .recommendation_agent import RecommendationAgent
+from .order_agent import OrderAgent

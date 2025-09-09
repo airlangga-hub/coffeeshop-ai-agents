@@ -22,12 +22,12 @@ class GuardAgent():
         - ONLY ALLOW messages related to ordering food/drink items, asking about the menu, or seeking recommendations.
         - DISALLOW off-topic, harmful, or irrelevant inputs.
 
-        Respond STRICTLY in the following JSON format:
-        {
-        "chain of thought": "<brief reasoning>",
-        "decision": "allowed" or "not allowed",
-        "message": if not allowed, write "Sorry I can't help with that, can I help you with your order?", else leave it empty.
-        }
+        Respond STRICTLY with VALID JSON in this exact format:
+            {
+            "chain of thought": "<brief reasoning>",
+            "decision": "allowed" or "not allowed",
+            "message": if not allowed, write "Sorry I can't help with that, can I help you with your order?", else leave it empty.
+            }
 
         CRITICAL:
         - Do NOT call any tools or functions

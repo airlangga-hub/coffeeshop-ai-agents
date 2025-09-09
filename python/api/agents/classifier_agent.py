@@ -19,16 +19,16 @@ class ClassifierAgent():
 
         Available Agents:
         1. details_agent - Handles: location, working hours, menu items, delivery areas, general info about the coffee shop
-        2. order_taking_agent - Handles: taking food/drink orders, order modifications, order confirmations
+        2. order_agent - Handles: taking food/drink orders, order modifications, order confirmations
         3. recommendation_agent - Handles: suggesting menu items, personalized recommendations
 
         Instructions:
         - Analyze the user's most recent message
-        - Choose EXACTLY ONE agent from: "details_agent", "order_taking_agent", or "recommendation_agent"
-        - Respond STRICTLY with valid JSON in this exact format:
+        - Choose EXACTLY ONE agent from: "details_agent", "order_agent", or "recommendation_agent"
+        - Respond STRICTLY with VALID JSON in this exact format:
             {
             "chain of thought": "<brief reasoning>",
-            "decision": "details_agent" or "order_taking_agent" or "recommendation_agent"
+            "decision": "details_agent" or "order_agent" or "recommendation_agent"
             }
 
         CRITICAL:
