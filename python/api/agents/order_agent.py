@@ -1,8 +1,6 @@
 from groq import Groq
 from dotenv import load_dotenv
 from os import getenv
-
-from python.api.agents import recommendation_agent
 from .utils import get_response
 import json
 from copy import deepcopy
