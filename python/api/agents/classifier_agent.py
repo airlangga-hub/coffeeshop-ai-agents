@@ -1,8 +1,8 @@
+from ast import literal_eval
 from groq import Groq
 from dotenv import load_dotenv
 from os import getenv
 from .utils import get_response
-import json
 from copy import deepcopy
 load_dotenv()
 
@@ -47,7 +47,7 @@ class ClassifierAgent():
 
     def postprocess(self, response):
         try:
-            response = json.loads(response)
+            response = literal_eval(response)
 
             return {
                 "role": "assistant",
@@ -56,7 +56,7 @@ class ClassifierAgent():
                             "decision": response["decision"]}
                 }
 
-        except Exception:
+        except:
             return {
                 "role": "assistant",
                 "content": "I didn't quite understand that, please say that again?",

@@ -1,3 +1,4 @@
+from ast import literal_eval
 from groq import Groq
 from dotenv import load_dotenv
 from os import getenv
@@ -56,7 +57,7 @@ class RecommendationAgent():
             category = recom['product_category']
             product = recom['product']
 
-            if product in recoms:
+            if product in recoms or product in products:
                 continue
 
             category_counter[category] = category_counter.get(category, 0) + 1
@@ -100,14 +101,14 @@ class RecommendationAgent():
 
     def postprocess_classification(self, response):
         try:
-            response = json.loads(response)
+            response = literal_eval(response)
 
             return {
                 "recommendation_type": response["recommendation_type"],
                 "parameters": response["parameters"]
             }
 
-        except Exception:
+        except:
             return {
                 "recommendation_type": "popular",
                 "parameters": ""
@@ -144,13 +145,14 @@ class RecommendationAgent():
 
         response = get_response(self.client, self.model_name, input_messages)
 
-        return self.postprocess(response)
+        return self.postprocess(response, "apriori")
 
-    def postprocess(self, response):
+    def postprocess(self, response, recommendation_type):
         return {
             "role": "assistant",
             "content": response,
-            "metadata": {"agent": "recommendation_agent"}
+            "metadata": {"agent": "recommendation_agent",
+                         "recommendation_type": recommendation_type}
         }
 
     def respond(self,messages):
@@ -197,4 +199,4 @@ class RecommendationAgent():
 
         response = get_response(self.client,self.model_name,input_messages)
 
-        return self.postprocess(response)
+        return self.postprocess(response, recommendation_type)
