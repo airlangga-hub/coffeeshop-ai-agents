@@ -19,7 +19,7 @@ class DetailsAgent():
         self.pc = Pinecone(getenv("PINECONE_API_KEY "))
         self.index_name = getenv("INDEX_NAME", "coffeeshop")
 
-    def query_pinecone(self,  input_embeddings, top_k=2):
+    def query_pinecone(self,  input_embeddings, top_k=5):
         index = self.pc.Index(self.index_name)
 
         result = index.query(
