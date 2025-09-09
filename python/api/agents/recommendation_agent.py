@@ -93,7 +93,8 @@ class RecommendationAgent():
 
         Here is the user's current order:
         """ + (", ".join([dic['item'] for dic in current_order]) if current_order else "No current order") + """
-        If the user's order contains Dark Chocolate (Drinking Chocolate) or Dark Chocolate (Packaged Chocolate), change ONLY the items that contain Dark Chocolate (<drinking or packaged>) to Dark Chocolate. KEEP EVERYTHING ELSE THE SAME and DO NOT DELETE ANYTHING FROM THE user's order!.
+
+        Make SURE all the items in the user's order match the items in the coffee shop. PAY ATTENTION to the list of items in the coffee shop below!!! If an item in the user's order looks very similar to an item in the coffee shop, but is not exactly the same, then change ONLY that item with the correct item from the coffee shop and KEEP EVERYTHING ELSE THE SAME!!!
 
         Here is the list of items in the coffee shop:
         """ + ", ".join(self.products) + """
