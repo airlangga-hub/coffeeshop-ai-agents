@@ -1,4 +1,3 @@
-from sympy import Order
 from agents import GuardAgent, ClassifierAgent, AgentProtocol, DetailsAgent, RecommendationAgent, OrderAgent
 import os
 
