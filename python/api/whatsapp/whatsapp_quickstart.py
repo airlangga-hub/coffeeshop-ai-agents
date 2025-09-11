@@ -1,5 +1,4 @@
 from os import getenv
-from urllib import response
 from dotenv import load_dotenv
 import requests
 load_dotenv()
@@ -37,5 +36,5 @@ def send_whatsapp_message():
     return response
 
 response = send_whatsapp_message()
-print(response.status_code)
-print(response.json())
+print("\nStatus Code:", f"{response.status_code}\n")
+print("Response Body:", f"{response.json()}\n")
