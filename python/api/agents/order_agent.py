@@ -95,8 +95,8 @@ class OrderAgent():
                             [{"role": message["role"], "content": message["content"]} for message in messages[-3:]]
 
         response = get_response(self.client, self.model_name, input_messages)
-        print(response)
-        print(type(response))
+        # print(response)
+        # print(type(response))
 
         return self.postprocess(response, asked_recommendation_before, messages)
 

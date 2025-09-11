@@ -17,7 +17,7 @@ def main():
     messages = []
 
     while True:
-        # os.system("clear")
+        os.system("clear")
 
         print("\n==== CHAT HISTORY ====\n")
 
@@ -38,16 +38,16 @@ def main():
         classifier_response = classifier_agent.respond(messages)
         if classifier_response['metadata']['decision'] == 'unknown':
             messages.append(classifier_response)
-            print(classifier_response)
+            # print(classifier_response)
             continue
         else:
             chosen_agent = classifier_response["metadata"]['decision']
-            print(classifier_response)
+            # print(classifier_response)
 
         # get chosen agent's response
         agent = agent_dict[chosen_agent]
         response = agent.respond(messages)
-        print(response)
+        # print(response)
 
         messages.append(response)
 
