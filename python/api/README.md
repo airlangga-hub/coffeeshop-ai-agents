@@ -1,6 +1,6 @@
 # 🛠️ API Folder
 
-This folder contains the code for deploying the chatbot's agent-based system. This is considered the backend of the application. Below is an overview of the folder structure and its components.
+This folder contains the code for deploying the chatbot's agent-based system. This is considered the **BACKEND** of the application. Below is an overview of the folder structure and its components.
 
 ## 📂 Folder Structure
 
