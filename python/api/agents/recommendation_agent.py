@@ -15,7 +15,7 @@ class RecommendationAgent():
         self.client = Groq(api_key=getenv("GROQ_API_KEY"))
         self.model_name = getenv("MODEL_NAME")
 
-        root_dir = Path(__file__).parent.parent.parent
+        root_dir = Path(__file__).parent.parent
         self.apriori_path = root_dir/"recommendation_objects"/"apriori_recommendations.json"
         self.popularity_path = root_dir/"recommendation_objects"/"popularity_recommendation.csv"
 
@@ -25,6 +25,8 @@ class RecommendationAgent():
 
         self.products = self.popular_df['product'].unique().tolist()
         self.product_categories = self.popular_df['product_category'].unique().tolist()
+        # print(f"self.products: {self.products}\n")
+        # print(f"self.product_categories: {self.product_categories}")
 
     def get_popular_recommendation(self, product_categories=None, current_order=None, top_k=5):
         if isinstance(product_categories, str):
@@ -88,34 +90,39 @@ class RecommendationAgent():
         system_prompt = """ You are a helpful AI assistant for a coffee shop application which serves drinks and pastries. We have 3 types of recommendations:
 
         1. Apriori Recommendations: choose EXACTLY ONE of these 2 conditions: (1) The user is asking for recommendations based on their current order, or (2) The user is asking for recommendations based on specific products. For condition (1), we recommend items that are frequently bought together with the items in the user's order. For condition (2), we recommend items that are frequently bought together with the specific products mentioned by the user.
-        2. Popular Recommendations: These are recommendations based on the popularity of items in the coffee shop. We recommend items that are popular among customers.
-        3. Popular by Category Recommendations: Here the user asks to recommend them product in a category. Like what coffee do you recommend me to get?. We recommend items that are popular in the user's requested category.
+
+        2. Popular Recommendations: Here the user DOES NOT mention specific products or categories. They just ask for recommendations based on the popularity of items in the coffee shop. We recommend items that are popular among customers.
+
+        3. Popular by Category Recommendations: Here the user asks to recommend them products in a certain category. Example user input: "recommend me a coffee", "recommend me a good bakery", "what coffee would you recommend?", "what bakery would you recommend?". We recommend items that are popular in the USER's REQUESTED CATEGORY. PAY ATTENTION to the LIST OF CATEGORIES in the coffee shop below!!!
 
         Here is the user's current order:
         """ + (", ".join([dic['item'] for dic in current_order]) if current_order else "No current order") + """
 
         Make SURE all the items in the user's order match the items in the coffee shop. PAY ATTENTION to the list of items in the coffee shop below!!! If an item in the user's order looks very similar to an item in the coffee shop, but is not exactly the same, then change ONLY that item with the correct item from the coffee shop and KEEP EVERYTHING ELSE THE SAME!!!
 
-        Here is the list of items in the coffee shop:
+        Here is the LIST OF ITEMS in the coffee shop:
         """ + ", ".join(self.products) + """
 
-        Here is the list of Categories we have in the coffee shop:
+        Here is the LIST OF CATEGORIES we have in the coffee shop:
         """ + ", ".join(self.product_categories) + """
 
         Your task is to determine which type of recommendation to provide based on the user's message.
 
-        STRICTLY RESPOND IN THE EXACT PYTHON DICTIONARY FORMAT BELOW, DO NOT RESPOND IN ANY OTHER FORMAT:
+        STRICTLY RESPOND IN THE EXACT PYTHON DICTIONARY FORMAT BELOW:
             {
             "chain of thought": Write down your critical thinking about what type of recommendation is this input relevant to.
             "recommendation_type": "apriori" or "popular" or "popular by category". Pick one of those and only write the word.
             "parameters": This is a python list. It's either a list of of items for apriori recommendations or a list of categories for popular by category recommendations. Leave it empty for popular recommendations. Make sure to use the exact strings from the list of items and categories above.
             }
+
+        CRITICAL: Make sure to follow the EXACT PYTHON DICTIONARY FORMAT above. Do NOT add extra characters or extra fields. Do NOT include markdown formatting. Return ONLY the PYTHON DICTIONARY. REMEMBER, NOT A SINGLE CHARACTER MORE OR LESS.
         """
 
         input_messages = [{"role": "system", "content": system_prompt}] +\
                             [{"role": message['role'], "content": message['content']} for message in messages[-3:]]
 
         response = get_response(self.client, self.model_name, input_messages)
+        # print(repr(response))
 
         return self.postprocess_classification(response, current_order)
 
@@ -131,8 +138,8 @@ class RecommendationAgent():
 
         except:
             return {
-                "recommendation_type": "popular",
-                "parameters": "",
+                "recommendation_type": "unknown",
+                "parameters": [],
                 "current_order": current_order if current_order else []
             }
 
@@ -182,6 +189,10 @@ class RecommendationAgent():
         recommendation_classification = self.recommendation_classification(messages)
         recommendation_type = recommendation_classification['recommendation_type']
         current_order = recommendation_classification['current_order']
+        # print(recommendation_classification)
+
+        if recommendation_type == "unknown":
+            return {"role": "assistant", "content": "I didn't quite understand that, can you say that again?"}
 
         if recommendation_type == "apriori":
             recommendations = self.get_apriori_recommendation(recommendation_classification['parameters'], current_order=current_order)
@@ -223,5 +234,6 @@ class RecommendationAgent():
                             [{"role": message['role'], "content": message['content']} for message in messages[-3:]]
 
         response = get_response(self.client,self.model_name,input_messages)
+        # print(response)
 
         return self.postprocess(response, recommendation_type, recommendation_classification['parameters'])

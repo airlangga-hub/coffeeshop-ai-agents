@@ -1,0 +1,43 @@
+# 🛠️ API Folder
+
+This folder contains the code for deploying the chatbot's agent-based system. This is considered the backend of the application. Below is an overview of the folder structure and its components.
+
+## 📂 Folder Structure
+
+### Agents Folder
+
+The `agents` folder follows an agent-based architecture, where each agent is responsible for a specific task within the chatbot system:
+
+- **guard_agent.py**: Responsible for blocking unrelated or harmful queries.
+- **classifier_agent.py**: Classifies the user's input and determines which agent should respond.
+- **details_agent.py**: Handles questions related to coffee shop details and menu items.
+- **order_agent.py**: Manages the order-taking process, ensuring structured and accurate order data.
+- **recommendation_agent.py**: Interacts with the recommendation engine to provide personalized product suggestions.
+- **utils.py**: Contains utility functions for:
+  - Retrieving responses from the LLM (Large Language Model).
+
+### Recommendation Objects Folder
+
+- **recommendation_objects**: Contains the trained recommendation models that are used by the `recommendation_agent.py` to suggest products.
+
+### Other Files
+
+- **agent_controller.py**: Orchestrates the interaction between the agents, coordinating their responses and managing the flow of information.
+- **main.py**: Calls the `agent_controller` and integrates with RunPod's deploy functionality.
+- **Dockerfile**: Builds the code into a Docker image for deployment.
+
+## 🚀 Running the Code Locally
+
+1. **Set Up Environment Variables**:
+   Ensure that the required variables are set in your `.env` file.
+
+2. **Install Dependencies**:
+   Install the necessary dependencies by running:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. **Run the Code**:
+    You can run the chatbot locally by executing:
+    ```bash
+    python development_code.py
+    ```

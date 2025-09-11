@@ -62,7 +62,7 @@ class OrderAgent():
             "step number"
             please utilize this information to determine the next step in the process.
 
-            Respond STRICTLY with VALID JSON in this exact format:
+            Respond STRICTLY with VALID PYTHON DICTIONARY in this exact format:
                 {
                 "chain of thought": "<explain your step by step critical thinking>",
                 "step number": Determine which task you are on based on the conversation.,
@@ -70,7 +70,9 @@ class OrderAgent():
                 "response": write a response to the user
                 }
 
-            IMPORTANT: Make sure NOT to delete anything from "order". ONLY EXTEND the list with the exact dictionary format specified above!
+            CRITICAL:
+            • Make sure NOT to delete anything from "order". ONLY EXTEND the list with the exact dictionary format specified above!
+            • Make sure to follow the EXACT PYTHON DICTIONARY FORMAT above. Do NOT add extra characters or extra fields. Do NOT include markdown formatting. Return ONLY the PYTHON DICTIONARY. REMEMBER, NOT A SINGLE CHARACTER MORE OR LESS.
         """
 
         last_order_status = ""
@@ -107,7 +109,7 @@ class OrderAgent():
             if isinstance(response['order'], str):
                 response['order'] = literal_eval(response['order'])
 
-            if not asked_recommendation_before and len(response['order']) > 1:
+            if not asked_recommendation_before and len(response['order']) > 0:
                 asked_recommendation_before = True
 
                 recommendation_output = self.recommendation_agent.get_recommendation_from_order(response['order'], messages)

@@ -1,3 +1,4 @@
+import re
 from groq import Groq
 from dotenv import load_dotenv
 from os import getenv
@@ -15,12 +16,19 @@ class GuardAgent():
         messages = deepcopy(messages)
 
         system_prompt = """
-        You are a helpful AI assistant for a coffee shop app that serves drinks and pastries.
-        Your task is to decide whether the user input is APPROPRIATE and RELEVANT to the service.
+        You are a helpful AI assistant for a coffee shop app that SERVES DRINKS and PASTRIES.
+        Your task is to decide whether the user input is APPROPRIATE and RELEVANT to the coffee shop.
 
-        Rules:
-        - ONLY ALLOW messages related to the coffee shop such as ordering food/drink items, asking about the menu, seeking recommendations, or coffee shop information.
-        - DISALLOW off-topic, harmful, or irrelevant inputs.
+        ✅ ALLOW if the user is asking about:
+        - Ordering items (e.g., "I want a latte")
+        - Menu items (e.g., "What's in the menu?")
+        - Recommendations (e.g., "What pastry goes with coffee?", "Recommend a bakery item")
+        - Coffee shop info (e.g., "What are your hours?")
+
+        🚫 NOT ALLOWED if the user asks about:
+        - Irrelevant topics (e.g., "How to fix my car?", "Tell me a joke")
+        - Competitors (e.g., "What does Starbucks sell?")
+        - Inappropriate/offensive content
 
         Respond STRICTLY with VALID JSON in this exact format:
             {
@@ -40,6 +48,7 @@ class GuardAgent():
                             [{"role": message['role'], "content": message["content"]} for message in messages[-3:]]
 
         response = get_response(self.client, self.model_name, input_messages)
+        # print(response)
 
         return self.postprocess(response)
 
