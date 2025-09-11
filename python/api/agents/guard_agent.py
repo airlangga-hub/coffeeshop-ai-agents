@@ -19,7 +19,7 @@ class GuardAgent():
         Your task is to decide whether the user input is APPROPRIATE and RELEVANT to the service.
 
         Rules:
-        - ONLY ALLOW messages related to ordering food/drink items, asking about the menu, or seeking recommendations.
+        - ONLY ALLOW messages related to the coffee shop such as ordering food/drink items, asking about the menu, seeking recommendations, or coffee shop information.
         - DISALLOW off-topic, harmful, or irrelevant inputs.
 
         Respond STRICTLY with VALID JSON in this exact format:
