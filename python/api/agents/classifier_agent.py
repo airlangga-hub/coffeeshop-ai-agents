@@ -20,10 +20,12 @@ class ClassifierAgent():
         Available Agents:
         1. details_agent - Handles: location, working hours, menu items, delivery areas, general info about the coffee shop
         2. order_agent - Handles: taking food/drink orders, order modifications, order confirmations
-        3. recommendation_agent - Handles: suggesting menu items, personalized recommendations
+        3. recommendation_agent - Handles:
+            - Suggesting menu items based on popularity, pairing, or category
+            - example: "What's popular?", "Recommend something sweet", "What bakery items do you have?", "What goes well with coffee?"
 
         Instructions:
-        - Analyze the user's most recent message
+        - Focus on the USER'S INTENT, not just keywords.
         - Choose EXACTLY ONE agent from: "details_agent", "order_agent", or "recommendation_agent"
         - Respond STRICTLY with VALID JSON in this exact format:
             {

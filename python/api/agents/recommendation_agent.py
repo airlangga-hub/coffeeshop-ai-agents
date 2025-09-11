@@ -89,11 +89,11 @@ class RecommendationAgent():
 
         system_prompt = """ You are a helpful AI assistant for a coffee shop application which serves drinks and pastries. We have 3 types of recommendations:
 
-        1. Apriori Recommendations: choose EXACTLY ONE of these 2 conditions: (1) The user is asking for recommendations based on their current order, or (2) The user is asking for recommendations based on specific products. For condition (1), we recommend items that are frequently bought together with the items in the user's order. For condition (2), we recommend items that are frequently bought together with the specific products mentioned by the user.
+        1. Apriori Recommendations: choose EXACTLY ONE of these 2 conditions: (1) The user is asking for recommendations based on their current order, or (2) The user is asking for recommendations based on specific items. For condition (1), we recommend items that are frequently bought together with the items in the user's order. For condition (2), we recommend items that are frequently bought together with the specific items mentioned by the user.
 
-        2. Popular Recommendations: Here the user DOES NOT mention specific products or categories. They just ask for recommendations based on the popularity of items in the coffee shop. We recommend items that are popular among customers.
+        2. Popular Recommendations: The user asks for recommendations based on the popularity of items in the coffee shop. We recommend items that are popular among customers. This is overall popularity, not popularity in a specific category.
 
-        3. Popular by Category Recommendations: Here the user asks to recommend them products in a certain category. Example user input: "recommend me a coffee", "recommend me a good bakery", "what coffee would you recommend?", "what bakery would you recommend?". We recommend items that are popular in the USER's REQUESTED CATEGORY. PAY ATTENTION to the LIST OF CATEGORIES in the coffee shop below!!!
+        3. Popular by Category Recommendations: Choose one of theses conditions: (1) The user is asking to recommend them products in a certain category. Example user input: "recommend me a coffee", "recommend me a good bakery", "what coffee would you recommend?", "what bakery would you recommend?". We recommend items that are popular in the USER's REQUESTED CATEGORY. (2) The user is asking for recommendations based on a type of item  like "sweet", "savory", "baked goods", "drinks". Choose the appropriate category based on the user's description.
 
         Here is the user's current order:
         """ + (", ".join([dic['item'] for dic in current_order]) if current_order else "No current order") + """
@@ -105,6 +105,8 @@ class RecommendationAgent():
 
         Here is the LIST OF CATEGORIES we have in the coffee shop:
         """ + ", ".join(self.product_categories) + """
+
+        PAY ATTENTION to the LIST OF ITEMS and LIST OF CATEGORIES in the coffee shop above!!!
 
         Your task is to determine which type of recommendation to provide based on the user's message.
 
@@ -161,7 +163,7 @@ class RecommendationAgent():
         prompt = f"""
         {messages[-1]['content']}
 
-        STRICTLY Recommend The Following Items, DO NOT recommend anything else:
+        STRICTLY Recommend The Following Items, DO NOT recommend anything else and DO NOT OMIT anything:
         {recoms_str}
         """
 
@@ -224,7 +226,7 @@ class RecommendationAgent():
         prompt = f"""
         {messages[-1]['content']}
 
-        STRICTLY Recommend The Following Items, DO NOT recommend anything else:
+        STRICTLY Recommend The Following Items, DO NOT recommend anything else and DO NOT OMIT anything:
         {recommendations_str}
         """
 
