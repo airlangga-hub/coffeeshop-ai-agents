@@ -87,7 +87,7 @@ class RecommendationAgent():
 
         system_prompt = """ You are a helpful AI assistant for a coffee shop application which serves drinks and pastries. We have 3 types of recommendations:
 
-        1. Apriori Recommendations: These are recommendations based on the user's order history. We recommend items that are frequently bought together with the items in the user's order.
+        1. Apriori Recommendations: choose EXACTLY ONE of these 2 conditions: (1) The user is asking for recommendations based on their current order, or (2) The user is asking for recommendations based on specific products. For condition (1), we recommend items that are frequently bought together with the items in the user's order. For condition (2), we recommend items that are frequently bought together with the specific products mentioned by the user.
         2. Popular Recommendations: These are recommendations based on the popularity of items in the coffee shop. We recommend items that are popular among customers.
         3. Popular by Category Recommendations: Here the user asks to recommend them product in a category. Like what coffee do you recommend me to get?. We recommend items that are popular in the user's requested category.
 
@@ -104,7 +104,7 @@ class RecommendationAgent():
 
         Your task is to determine which type of recommendation to provide based on the user's message.
 
-        Your output should be in a structured json format like so. Each key is a string and each value is a string. Make sure to follow the format exactly:
+        STRICTLY RESPOND IN THE EXACT PYTHON DICTIONARY FORMAT BELOW, DO NOT RESPOND IN ANY OTHER FORMAT:
             {
             "chain of thought": Write down your critical thinking about what type of recommendation is this input relevant to.
             "recommendation_type": "apriori" or "popular" or "popular by category". Pick one of those and only write the word.
@@ -198,7 +198,7 @@ class RecommendationAgent():
         # print(recommendation_classification)
 
         if not recommendations:
-            return {"role": "assistant", "content": "I can't recommend any items, can I help you with anything else?"}
+            return {"role": "assistant", "content": "I didn't quite understand that, can you say that again?"}
 
         # Respond to User
         recommendations_str = ", ".join(recommendations)
