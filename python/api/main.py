@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from agent_controller import AgentController
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Literal
 
 app = FastAPI(
     title="CoffeeShop AI Agents API",
@@ -11,7 +11,7 @@ app = FastAPI(
 agent_controller = AgentController()
 
 class Message(BaseModel):
-    role: str
+    role: Literal["user", "assistant", "system"] = "user"
     content: str
     metadata: Dict[str, Any] = {}
 

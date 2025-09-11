@@ -17,7 +17,7 @@ def main():
     messages = []
 
     while True:
-        # os.system("clear")
+        os.system("clear")
 
         print("\n==== CHAT HISTORY ====\n")
 

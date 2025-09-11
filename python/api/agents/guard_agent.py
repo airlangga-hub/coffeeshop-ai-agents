@@ -58,7 +58,7 @@ class GuardAgent():
 
             return {
                 "role": "assistant",
-                "content": response['message'],
+                "content": response['message'] or "",
                 "metadata": {"agent": "guard agent",
                             "decision": response["decision"]}
                 }
