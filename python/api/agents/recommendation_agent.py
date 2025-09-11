@@ -141,7 +141,7 @@ class RecommendationAgent():
 
         products = [dic['item'] for dic in order]
 
-        recoms = self.get_apriori_recommendation(products, order)
+        recoms = self.get_apriori_recommendation(products)
         recoms_str = ", ".join(recoms)
 
         system_prompt = """
