@@ -4,7 +4,8 @@ from os import getenv
 from .utils import get_response
 from copy import deepcopy
 from pinecone import Pinecone
-from huggingface_hub import InferenceClient
+# from huggingface_hub import InferenceClient
+from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 
@@ -13,8 +14,10 @@ class DetailsAgent():
         self.client = Groq(api_key=getenv("GROQ_API_KEY"))
         self.model_name = getenv("MODEL_NAME")
 
-        self.hf_client = InferenceClient(provider="hf-inference", api_key=getenv("HUGGINGFACE_TOKEN"))
-        self.embedding_model_name = getenv("EMBEDDING_MODEL_NAME")
+        # self.hf_client = InferenceClient(provider="hf-inference", api_key=getenv("HUGGINGFACE_TOKEN"))
+        # self.embedding_model_name = getenv("EMBEDDING_MODEL_NAME")
+
+        self.embedder = SentenceTransformer('all-mpnet-base-v2')
 
         self.pc = Pinecone(getenv("PINECONE_API_KEY "))
         self.index_name = getenv("INDEX_NAME", "coffeeshop")
@@ -36,7 +39,7 @@ class DetailsAgent():
         messages = deepcopy(messages)
         user_input = messages[-1]['content']
 
-        input_embeddings = self.hf_client.feature_extraction(user_input, model=self.embedding_model_name)
+        input_embeddings = self.embedder.encode(user_input)
 
         result = self.query_pinecone(input_embeddings.tolist())
 

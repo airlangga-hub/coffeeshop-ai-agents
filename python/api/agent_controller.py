@@ -18,9 +18,8 @@ class AgentController():
             "recommendation_agent": self.recommendation_agent
         }
 
-    def respond(self, input):
-        messages = input['messages']
-
+    def respond(self, messages: list):
+        
         # Get GuardAgent's response
         guard_agent_response = self.guard_agent.respond(messages)
         if guard_agent_response["metadata"]["decision"] == "not allowed":

@@ -4,20 +4,55 @@ from agent_controller import AgentController
 from typing import Any, Dict, List
 from dotenv import load_dotenv
 from os import getenv
+import httpx
 
 load_dotenv()
 
-VERIFY_TOKEN = getenv("VERIFY_TOKEN", "171295")  # Fallback if .env missing
+VERIFY_TOKEN = getenv("VERIFY_TOKEN", "171295")
+ACCESS_TOKEN = getenv("ACCESS_TOKEN")
+RECIPIENT_WA_NO = getenv("RECIPIENT_WA_NO")
+VERSION = getenv("VERSION")
+# PHONE_NUMBER_ID = getenv("PHONE_NUMBER_ID")
 
 app = FastAPI(
     title="CoffeeShop AI Agents API",
     description="An API for a multi-agent AI system designed to assist with coffee shop operations."
 )
-
-agent_controller = AgentController()
+try:
+    print("Initializing AgentController...")
+    agent_controller = AgentController()
+    print("AgentController initialized successfully.")
+except Exception as e:
+    print(f"Error initializing AgentController: {e}")
+    raise e
 
 # In-memory storage for chat history (key: wa_id, value: list of messages)
 USER_CHAT_HISTORY: Dict[str, List[Dict[str, Any]]] = {}
+
+async def send_whatsapp_message(phone_number_id: str, recipient_wa_no: str, message_text: str):
+    url = f"https://graph.facebook.com/{VERSION}/{phone_number_id}/messages"
+
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "messaging_product": "whatsapp",
+        "to": recipient_wa_no,
+        "type": "text",
+        "text": {
+            "body": message_text
+        }
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, headers=headers, json=data)
+        if response.status_code != 200:
+            print("❌ Failed to send WhatsApp message:", response.text)
+            return None
+        else:
+            print("✅ WhatsApp message sent successfully!")
+        return response
 
 # ================
 # GET /respond — For Webhook Verification
@@ -88,19 +123,26 @@ async def respond(input: Dict[Any, Any] = Body(...)):
         })
 
         # Pass FULL history to agent controller
-        internal_input = {"messages": chat_history}
-        agent_response = agent_controller.respond(internal_input)
+        agent_response = agent_controller.respond(chat_history)
 
         # Append agent's response to history
         chat_history.append(agent_response)
 
         # Return only the latest response to WhatsApp
+        # Extract the text to send back
+        reply_text = agent_response.get("content", "Sorry, I didn't understand that.")
+
+        # Send reply via WhatsApp API
+        await send_whatsapp_message(phone_number_id, wa_id, reply_text)
+
+        # Return 200 OK to acknowledge receipt (required by Meta)
         return JSONResponse(
-            content=agent_response,
+            content={"status": "success"},
             headers={"ngrok-skip-browser-warning": "true"}
         )
 
     except Exception as e:
+        print(f"\nError when trying to respond: {e}\n")
         return JSONResponse(
             content={"error": f"Processing failed: {str(e)}"},
             headers={"ngrok-skip-browser-warning": "true"},

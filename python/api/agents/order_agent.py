@@ -53,7 +53,7 @@ class OrderAgent():
             4. Ask them if they need anything else.
             5. If they do then repeat starting from step 3
             6. If they don't want anything else. Using the "order" object that is in the output. Make sure to hit all three points:
-                1. list down all the items and their prices
+                1. list down all the items, their quantity, and their prices
                 2. calculate the total.
                 3. Thank the user for the order and close the conversation with no more questions
 
