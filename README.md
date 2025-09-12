@@ -22,6 +22,9 @@ To run the project online, you need:
 
 To set up both Meta Developer Account and Ngrok, please refer to [this video](https://www.youtube.com/watch?v=3YPeh-3AFmM&t=1230s) and [this repo.](https://github.com/daveebbelaar/python-whatsapp-bot/tree/main)
 
+# Other Reference
+For details about the **Backend System**, refer to [this video.](https://www.youtube.com/watch?v=KyQKTJhSIak&t=4826s)
+
 # Running the FastAPI and Ngrok
 First, cd into python/api directory
 ```bash
