@@ -19,12 +19,12 @@ app = FastAPI(
     description="An API for a multi-agent AI system designed to assist with coffee shop operations."
 )
 try:
-    print("Initializing AgentController...")
+    # print("Initializing AgentController...")
     agent_controller = AgentController()
-    print("AgentController initialized successfully.")
+    # print("AgentController initialized successfully.")
 except Exception as e:
-    print(f"Error initializing AgentController: {e}")
-    raise e
+    # print(f"Error initializing AgentController: {e}")
+    raise Exception(f"Error initializing AgentController: {e}")
 
 # In-memory storage for chat history (key: wa_id, value: list of messages)
 USER_CHAT_HISTORY: Dict[str, List[Dict[str, Any]]] = {}
