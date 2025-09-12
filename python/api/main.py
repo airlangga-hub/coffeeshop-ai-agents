@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Response, Body
 from fastapi.responses import PlainTextResponse, JSONResponse
 from agent_controller import AgentController
-from typing import Any, Dict
+from typing import Any, Dict, List
 from dotenv import load_dotenv
 from os import getenv
 
@@ -15,6 +15,9 @@ app = FastAPI(
 )
 
 agent_controller = AgentController()
+
+# In-memory storage for chat history (key: wa_id, value: list of messages)
+USER_CHAT_HISTORY: Dict[str, List[Dict[str, Any]]] = {}
 
 # ================
 # GET /respond — For Webhook Verification
@@ -35,33 +38,25 @@ async def verify_webhook(request: Request):
 # ================
 @app.post("/respond")
 async def respond(input: Dict[Any, Any] = Body(...)):
-    """
-    Accepts raw JSON from Meta webhook.
-    Logs it, extracts message, and passes to agent controller.
-    """
-    # print("\n" + "="*70)
-    # print("📩 INCOMING RAW PAYLOAD FROM META:")
-    # print(input)
-    # print("="*70 + "\n")
-
     try:
-
         if not input:
             return JSONResponse(
                 content={"error": "Empty payload"},
                 headers={"ngrok-skip-browser-warning": "true"}
             )
 
-        # Process first event
-        messages = input["entry"][0]["changes"][0]["value"].get("messages", [])
+        # Extract message data
+        entry = input["entry"][0]
+        change = entry["changes"][0]
+        value = change["value"]
 
+        messages = value.get("messages", [])
         if not messages:
             return JSONResponse(
                 content={"error": "No messages in payload"},
                 headers={"ngrok-skip-browser-warning": "true"}
             )
 
-        # Get first message
         first_msg = messages[0]
         if first_msg.get("type") != "text" or not first_msg.get("text"):
             return JSONResponse(
@@ -69,41 +64,43 @@ async def respond(input: Dict[Any, Any] = Body(...)):
                 headers={"ngrok-skip-browser-warning": "true"}
             )
 
-        user_message = first_msg["text"]["body"]
+        user_message_body = first_msg["text"]["body"]
+        contacts = value.get("contacts", [])
+        wa_id = contacts[0]["wa_id"] if contacts else "unknown_user"
+        phone_number_id = value.get("metadata", {}).get("phone_number_id", "unknown")
+        display_phone_number = value.get("metadata", {}).get("display_phone_number", "unknown")
 
-        contacts = input["entry"][0]["changes"][0]["value"].get("contacts", [])
-        wa_id = contacts[0]["wa_id"] if contacts else None
-        phone_number_id = input["entry"][0]["changes"][0]["value"].get("metadata", {}).get("phone_number_id", "unknown")
-        display_phone_number = input["entry"][0]["changes"][0]["value"].get("metadata", {}).get("display_phone_number", "unknown")
+        # Initialize or retrieve chat history for this user
+        if wa_id not in USER_CHAT_HISTORY:
+            USER_CHAT_HISTORY[wa_id] = []
 
-        # Convert to your agent's expected format
-        internal_messages = {
-            "messages": [
-                {
-                    "role": "user",
-                    "content": user_message,
-                    "metadata": {
-                        "wa_id": wa_id,
-                        "phone_number_id": phone_number_id,
-                        "display_phone_number": display_phone_number
-                        # Optional: keep original for debugging
-                        # "original_payload": input
-                    }
-                }
-            ]
-        }
+        chat_history = USER_CHAT_HISTORY[wa_id]
 
-        # Get response from your agent system
-        agent_response = agent_controller.respond(internal_messages)
+        # Append new user message
+        chat_history.append({
+            "role": "user",
+            "content": user_message_body,
+            "metadata": {
+                "wa_id": wa_id,
+                "phone_number_id": phone_number_id,
+                "display_phone_number": display_phone_number
+            }
+        })
 
-        # Return with ngrok header to suppress warning page
+        # Pass FULL history to agent controller
+        internal_input = {"messages": chat_history}
+        agent_response = agent_controller.respond(internal_input)
+
+        # Append agent's response to history
+        chat_history.append(agent_response)
+
+        # Return only the latest response to WhatsApp
         return JSONResponse(
             content=agent_response,
             headers={"ngrok-skip-browser-warning": "true"}
         )
 
     except Exception as e:
-        # print("❌ Error processing payload:", str(e))
         return JSONResponse(
             content={"error": f"Processing failed: {str(e)}"},
             headers={"ngrok-skip-browser-warning": "true"},
