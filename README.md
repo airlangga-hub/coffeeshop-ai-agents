@@ -8,6 +8,7 @@ This is a **WhatsApp Chatbot** with 5 **AI Agents** running on the Backend:
   * Popularity
 * Order Agent - handle user's order
 
+This **WhatsApp Chatbot** serves as an AI Assistant for a Coffee Shop.
 
 # Topology
 Below is an overview of the whole system:
