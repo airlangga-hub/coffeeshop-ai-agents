@@ -1,5 +1,6 @@
 # Project Overview
-This is a **WhatsApp Chatbot** with 5 **AI Agents** running on the Backend:
+This **WhatsApp Chatbot** serves as an AI Assistant for a Coffee Shop. \
+It has 5 **AI Agents** running on the Backend:
 * Guard Agent - filter irrelevant inputs
 * Classifier Agent - route user input to the appropriate agent
 * Details Agent - give coffee shop information using RAG
@@ -7,8 +8,6 @@ This is a **WhatsApp Chatbot** with 5 **AI Agents** running on the Backend:
   * Market Basket Analysis
   * Popularity
 * Order Agent - handle user's order
-
-This **WhatsApp Chatbot** serves as an AI Assistant for a Coffee Shop.
 
 # Topology
 Below is an overview of the whole system:
