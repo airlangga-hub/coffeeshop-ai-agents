@@ -2,7 +2,7 @@
 This is a **WhatsApp Chatbot** with 5 **AI Agents** running on the Backend:
 * Guard Agent - filter irrelevant inputs
 * Classifier Agent - route user input to the appropriate agent
-* Details Agent - give store information using RAG
+* Details Agent - give coffee shop information using RAG
 * Recommendation Agent - recommend items using:
   * Market Basket Analysis
   * Popularity
