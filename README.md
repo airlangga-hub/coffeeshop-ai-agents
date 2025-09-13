@@ -22,9 +22,6 @@ To run the project online, you need:
 
 To set up both Meta Developer Account and Ngrok, please refer to [this video](https://www.youtube.com/watch?v=3YPeh-3AFmM&t=1230s) and [this repo.](https://github.com/daveebbelaar/python-whatsapp-bot/tree/main)
 
-# Other Reference
-For details about the **Backend System**, refer to [this video.](https://www.youtube.com/watch?v=KyQKTJhSIak&t=4826s)
-
 # Running the FastAPI and Ngrok
 First, cd into python/api directory
 ```bash
@@ -38,3 +35,7 @@ Third, expose the localhost to ngrok
 ```bash
 ngrok http 8000 --domain=<your free static domain from ngrok>.ngrok-free.app
 ```
+
+# Attribution
+This project is based on [Abdullah Tarek's](https://github.com/abdullahtarek) [repository.](https://github.com/abdullahtarek/coffee_shop_customer_service_chatbot/tree/main) \
+For more details, go watch [his tutorial video.](https://www.youtube.com/watch?v=KyQKTJhSIak&t=4826s)
